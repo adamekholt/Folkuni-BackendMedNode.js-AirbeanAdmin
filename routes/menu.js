@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getMenu, createProduct } from '../services/menu.js';
+import { getMenu, createProduct, updateProduct } from '../services/menu.js';
 import adminAuth from '../middlewares/adminAuth.js';
 
 const router = Router();
@@ -29,6 +29,21 @@ router.post('/', adminAuth, async (req, res, next) => {
     } catch (error) {
         next({
             status: 400,
+            message: error.message
+        });
+    }
+});
+
+router.put('/:prodId', adminAuth, async (req, res, next) => {
+    try {
+        const product = await updateProduct(req.params.prodId, req.body);
+        res.json({
+            success: true,
+            product
+        });
+    } catch (error) {
+        next({
+            status: error.message === 'Product not found' ? 404 : 400,
             message: error.message
         });
     }

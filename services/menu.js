@@ -42,3 +42,28 @@ export async function createProduct(productData) {
         throw error;
     }
 }
+
+export async function updateProduct(prodId, productData) {
+    try {
+        const { title, desc, price } = productData;
+        
+        if (!title || !desc || !price) {
+            throw new Error('Missing required fields');
+        }
+
+        const product = await Product.findOne({ prodId });
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        product.title = title;
+        product.desc = desc;
+        product.price = price;
+        product.modifiedAt = new Date();
+
+        const updatedProduct = await product.save();
+        return updatedProduct;
+    } catch (error) {
+        throw error;
+    }
+}
