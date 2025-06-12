@@ -1,4 +1,4 @@
-import Product from '../../../Airbeanadmin/middlewares/models/product.js';
+import Product from '../models/product.js';
 
 export async function getMenu() {
     try {
