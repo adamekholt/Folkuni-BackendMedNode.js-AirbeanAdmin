@@ -21,23 +21,41 @@ router.get('/logout', (req, res, next) => {
 });
 
 router.post('/register', validateAuthBody, async (req, res) => {
-    const { username, password } = req.body;
-    const userType = 'user';
-    const result = await registerUser({
-        username: username,
-        password : password,
-        role : userType,
-        userId : `${userType}-${uuid().substring(0, 5)}`
-    });
-    if(result) {
-        res.status(201).json({
-            success : true,
-            message : 'New user registered successfully'
+    const { username, password, role } = req.body;
+    console.log('Registering user with role:', role);
+    
+    if (role && role !== 'user' && role !== 'admin') {
+        return res.status(400).json({
+            success: false,
+            message: 'Role must be either "user" or "admin"'
         });
-    } else {
+    }
+
+    try {
+        const result = await registerUser({
+            username: username,
+            password: password,
+            role: role || 'user',
+            userId: `${role || 'user'}-${uuid().substring(0, 5)}`
+        });
+
+        if(result) {
+            console.log('Registered user:', result);
+            res.status(201).json({
+                success: true,
+                message: 'New user registered successfully'
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Registration unsuccessful'
+            });
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
         res.status(400).json({
             success: false,
-            message : 'Registration unsuccessful'
+            message: error.message
         });
     }
 });
@@ -45,23 +63,32 @@ router.post('/register', validateAuthBody, async (req, res) => {
 router.post('/login', validateAuthBody, async (req, res) => {
     const { username, password } = req.body;
     const user = await getUser(username);
+    console.log('Found user during login:', user);
+    
     if(user) {
         if(user.password === password) {
             global.user = user;
+            console.log('Set global.user to:', global.user);
+            console.log('User role is:', global.user.role);
             res.json({
-                success : true,
-                message : 'User logged in successfully'
+                success: true,
+                message: 'User logged in successfully',
+                user: {
+                    username: user.username,
+                    role: user.role,
+                    userId: user.userId
+                }
             });
         } else {
             res.status(400).json({
-                success : false,
-                message : 'Incorrect username and/or password'
+                success: false,
+                message: 'Incorrect username and/or password'
             });
         }
     } else {
         res.status(400).json({
-            success : false,
-            message : 'No user found'
+            success: false,
+            message: 'No user is found'
         });
     }
 });
