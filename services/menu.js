@@ -19,3 +19,26 @@ export async function getProduct(prodId) {
         return null;
     }
 }
+
+export async function createProduct(productData) {
+    try {
+        const { title, desc, price } = productData;
+        
+        if (!title || !desc || !price) {
+            throw new Error('Missing required fields');
+        }
+
+        const product = new Product({
+            prodId: Math.random().toString(36).substring(2, 10),
+            title,
+            desc,
+            price,
+            createdAt: new Date()
+        });
+
+        const savedProduct = await product.save();
+        return savedProduct;
+    } catch (error) {
+        throw error;
+    }
+}
