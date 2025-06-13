@@ -53,7 +53,7 @@ export async function updateProduct(prodId, productData) {
 
         const product = await Product.findOne({ prodId });
         if (!product) {
-            throw new Error('Product not found');
+            throw new Error('Product is not found');
         }
 
         product.title = title;
@@ -63,6 +63,20 @@ export async function updateProduct(prodId, productData) {
 
         const updatedProduct = await product.save();
         return updatedProduct;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function deleteProduct(prodId) {
+    try {
+        const product = await Product.findOne({ prodId });
+        if (!product) {
+            throw new Error('Product is not found');
+        }
+
+        await Product.deleteOne({ prodId });
+        return { message: 'Product is deleted' };
     } catch (error) {
         throw error;
     }
